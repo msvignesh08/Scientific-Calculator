@@ -1,4 +1,3 @@
-
 name: Build SciCalc APK
 
 on:
@@ -25,12 +24,17 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Extract Android project
+        run: |
+          unzip -q SciCalc-Casio-Color-Display-Android-project.zip -d extracted
+          test -f extracted/settings.gradle || (echo "Gradle settings file not found in ZIP"; exit 1)
+
       - name: Build APK
-        run: gradle assembleDebug
+        run: gradle -p extracted assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SciCalc-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          
+          path: extracted/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
